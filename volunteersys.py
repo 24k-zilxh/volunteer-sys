@@ -1,3 +1,5 @@
+### | All the imports | ###
+
 import sys
 import os
 import datetime 
@@ -7,10 +9,11 @@ from datetime import datetime
 from datetime import *
 import customtkinter as ckt
 import re
-
+from tabulate import tabulate 
 
 ### | Start of program | ###
 
+### | Program-wide constants | ###
 
 global setup_organisation_PIN
 setup_organisation_PIN=3916
@@ -18,14 +21,15 @@ global all_organisations_list
 all_organisations_list=[]
 global Organisation_CSV_Path
 global Volunteer_CSV_Path
-Organisation_CSV_Path='C:\\Users\\abhir\\OneDrive\\Education\\Computer Science\\Python\\Projects\\Volunteer System\\{p}_org.csv' #RECODE PATH MAKE SURE TO KEEP THE _org 
-Volunteer_CSV_Path='C:\\Users\\abhir\\OneDrive\\Education\\Computer Science\\Python\\Projects\\Volunteer System\\{k}_vol.csv' #RECODE PATH, MAKE SURE TO KEEP THE _vol
+Organisation_CSV_Path=r'A:\Abhiram\Learning\CompSci\Python\Projects\volunteersys\{p}_org.csv' #RECODE PATH MAKE SURE TO KEEP THE _org 
+Volunteer_CSV_Path=r'A:\Abhiram\Learning\CompSci\Python\Projects\volunteersys\{k}_vol.csv' #RECODE PATH, MAKE SURE TO KEEP THE _vol
 def write_csv(givenpath,adding_target,top_row):
     with open(givenpath, 'a', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=top_row,extrasaction='ignore')
         writer.writerow({'First Name': adding_target.Firstname, 'Last Name': adding_target.LastName, 'Phone Number': adding_target.Phone, 'Address': adding_target.Address, 'Admin_ID': adding_target.Admin_ID, 'Timestamp': adding_target.Timestamp})
 
-# "First Name, Last Name,Phone Number,Address, Admin ID, Timestamp"
+
+
 def restofproject():
 
     app.destroy()
@@ -46,10 +50,10 @@ def restofproject():
             
             existsa=os.path.isfile(access_org)
             if existsa == False:
-                title.configure(restwin, text="Please try again, that organisation doesnt exist")
+                title.configure(restwin, text="Please try again, that organisation does NOT exist")
                 return None
 
-            restwin.destroy() # THIS MAY BE AN ISSUE
+            restwin.destroy() 
             ckt.set_appearance_mode("system")
             ckt.set_default_color_theme("blue")
             choxwin = ckt.CTk()
@@ -61,10 +65,13 @@ def restofproject():
             addhr=ckt.CTkButton(choxwin, text="Add Hours", command=add_hours)
             remvol=ckt.CTkButton(choxwin,text='Remove Volunteer', command=remove_volunteer)
             snap=ckt.CTkButton(choxwin, text="View Hours", command=volunteer_snapshot)
+            repgen=ckt.CTkButton(choxwin, text="Generate Report", command=generate_report)
             addvol.pack(padx=10,pady=10)
             addhr.pack(padx=10,pady=10)
             remvol.pack(padx=10,pady=10)
             snap.pack(padx=10,pady=10)
+            repgen.pack(padx=10,pady=10)
+            w.pack(padx=10,pady=10)
             choxwin.mainloop()
     
     abc=ckt.CTkButton(restwin, text="Submit",command=sendof)
@@ -154,7 +161,7 @@ def add_volunteer():
                 access_org=Organisation_CSV_Path.format(p=accessable)
                 newvolfile = open(newpath_vol, "w")
                 newvolfile.write(df_dstm)
-                with open(access_org,'a') as thecsv: #Newpath org is not defined, 
+                with open(access_org,'a') as thecsv:  
                     thecsv.write(str(NewVolunteer))                  
                 labell.configure(volwin,text=f"Volunteer named {first} {last} has been added by {Adder} on {TimeStamp}")
         else:
@@ -235,16 +242,23 @@ def volunteer_snapshot():
     snapwin = ckt.CTk()
     snapwin.geometry("720x480")
     snapwin.title("EZ Volunteer System-View Hours")
-    newlab=ckt.CTkLabel(snapwin,text="Enter their name")
-    newlab.pack(padx=10,pady=10)
-    namein=ckt.CTkEntry(snapwin,placeholder_text="Name")
-    namein.pack(padx=10,pady=10)
+    snapwin.grid_columnconfigure(1, weight=1)
+    snapwin.grid_rowconfigure(5, weight=1)
+
+    newlab=ckt.CTkLabel(snapwin,text="Enter their name", font=("Arial", 18))
+    newlab.grid(row=1, column=1, padx=10,pady=10)
+    namein=ckt.CTkEntry(snapwin,placeholder_text="Full Name")
+    namein.grid(row=2, column=1, padx=10,pady=10)
+
+    result=ckt.CTkLabel(snapwin,text="",font=("Arial", 20))
+    result.grid(row=5, column=1, padx=10,pady=10)
+
     def wawa(): 
         fullnom=namein.get()
         orgsnappath=Organisation_CSV_Path.format(p=accessable)
         volunteer_snappath=Volunteer_CSV_Path.format(k=fullnom)
         try: reader=open(volunteer_snappath,'r')
-        except FileNotFoundError: newlab.configure(snapwin,text=f"That volunteer doesn't exist")
+        except FileNotFoundError: result.configure(snapwin,text=f"That volunteer doesn't exist")
 
         namenumber=open(orgsnappath,'r')
         namereader=csv.DictReader(namenumber)
@@ -258,7 +272,7 @@ def volunteer_snapshot():
         p=listofnames.index(fullnom)
 
         numsel=numlis[p]
-
+        
         dreader=csv.DictReader(reader)
         starttimes=[]
         endtimes=[]
@@ -273,22 +287,114 @@ def volunteer_snapshot():
             beg = datetime.strptime(x, '%H:%M')
             end = datetime.strptime(y, '%H:%M')
             res=end-beg
+            
             listofhrs.append(res)
             ppp=[]
             for d in listofhrs:
                 ppp.append(d.seconds)
             ppp=sum(ppp)
-            final =str(timedelta(seconds=ppp))
-            newlab.configure(snapwin,text=f"The amount of hours that {fullnom} has volunteered for is> {final} \nTheir phone number is {numsel}")
+            final =timedelta(seconds=ppp)
+            final= final.total_seconds()
+            final=final/ 3600
+            result.configure(snapwin,text=f"The amount of hours that {fullnom} has volunteered for is> {final} \nTheir phone number is {numsel}")
+
     sumbit=ckt.CTkButton(snapwin,text="Submit", command=wawa)
-    sumbit.pack(padx=10,pady=10)
+    sumbit.grid(row=3, column=1, padx=10,pady=1)
     snapwin.mainloop()
 
 
     ckt.set_appearance_mode("system")
     ckt.set_default_color_theme("blue")
 
+def generate_report():
+    ckt.set_appearance_mode("system")
+    ckt.set_default_color_theme("green")
 
+    repwin = ckt.CTk()
+    repwin.geometry("720x480")
+    repwin.title("Generate report")
+    labeler=ckt.CTkLabel(repwin,text="This will generate a TXT file containing a report of a volunteer's activities. \n You can print the report if you choose (WINDOWS ONLY). ")
+    labeler.pack(padx=10,pady=10)
+    namein=ckt.CTkEntry(repwin,placeholder_text="Name")
+    namein.pack(padx=10,pady=10)
+    adm=ckt.CTkEntry(repwin,placeholder_text="Admin")
+    adm.pack(padx=10,pady=10)
+    def entred():   
+        mudi=namein.get()
+        newad=adm.get()
+        repvolpath=Volunteer_CSV_Path.format(k=mudi)
+        try: reader=open(repvolpath,'r')
+        except: labeler.configure(repwin,text=f"That volunteer doesn't exist")
+
+        reportgen=csv.DictReader(reader)
+
+
+        starttimess=[]
+        endtimess=[]
+        dates=[]
+        admins=[]
+        listhr=[]
+
+        for p in reportgen:
+
+            dates.append(p['Date'])
+            starttimess.append(str(p[' Start Time']))
+            endtimess.append(str(p[' End Time']))
+            admins.append(p[' Admin'])
+        
+        for j in range(0,len(starttimess)):
+            x=starttimess[j]
+            y=endtimess[j]
+            beg = datetime.strptime(x, '%H:%M')
+            end = datetime.strptime(y, '%H:%M')
+            res=end-beg
+            res=res.total_seconds()
+            res=res/3600
+            listhr.append(res)
+            
+
+        waa=fr'A:\Abhiram\Learning\CompSci\Python\Projects\volunteersys\{mudi}_report.txt' #RECODE PATH MAKE SURE TO KEEP THE {mudi} 
+        
+        
+        datas=[["Date","Start Time","End Time","Hours","Admin"]]
+
+        for hh in range (len(dates)):
+            apender=[dates[hh],starttimess[hh],endtimess[hh],listhr[hh],admins[hh]]
+            datas.append(apender)
+        datas.append(["","","",sum(listhr),""])
+        
+        tabels = tabulate(datas, headers="firstrow", tablefmt="fancy_grid")
+
+        with open(waa, 'w', encoding="utf-8") as f:
+           f.write(f"Volunteer report on {mudi}, requested by {newad}\n \n")
+           f.write(tabels)         
+           f.write(f"\n\nGenerated by the EZ Volunteer System on {datetime.today().strftime('%Y-%m-%d')}")
+        f.close()
+            
+
+        ckt.set_appearance_mode("system")
+        ckt.set_default_color_theme("blue")
+
+        xfx = open(waa, encoding="utf8")
+        
+        readfile=xfx.read()
+
+        viewin = ckt.CTk()
+        viewin.geometry("2560x1440")
+        viewin.title("Viewing Report - EZ Volunteer")
+        newlab=ckt.CTkLabel(viewin,text=readfile)
+        newlab.pack(padx=10,pady=10)
+        def printer():
+            import os
+            os.startfile(waa, "print")
+        prbutton=ckt.CTkButton(viewin,text="Print", command=printer)
+        prbutton.pack(padx=10,pady=10)
+        viewin.mainloop()
+    
+
+    entre=ckt.CTkButton(repwin, text='Submit', command=entred)
+    entre.pack(padx=10,pady=10)
+    repwin.mainloop()
 
 class Volunteer_Session:
     def __init__(self,date,start_time,end_time,admin):
@@ -329,7 +435,6 @@ def codebegin():
 codebegin()
 
 
-# Program written by Abhiram Vadali
-# Python 3.12
-# For Windows
-# 9/3/2024
+# Program written by 24k-zilxh on GitHub
+# Python 3.13 
+# Made on Windows
