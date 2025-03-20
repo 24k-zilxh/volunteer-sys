@@ -1,5 +1,4 @@
 ### | All the imports | ###
-
 import sys
 import os
 import datetime 
@@ -10,28 +9,28 @@ from datetime import *
 import customtkinter as ckt
 import re
 from tabulate import tabulate 
-
-### | Start of program | ###
+from PIL import Image
 
 ### | Program-wide constants | ###
-
 global setup_organisation_PIN
 setup_organisation_PIN=3916
 global all_organisations_list
 all_organisations_list=[]
 global Organisation_CSV_Path
 global Volunteer_CSV_Path
-Organisation_CSV_Path=r'A:\Abhiram\Learning\CompSci\Python\Projects\volunteersys\{p}_org.csv' #RECODE PATH MAKE SURE TO KEEP THE _org 
-Volunteer_CSV_Path=r'A:\Abhiram\Learning\CompSci\Python\Projects\volunteersys\{k}_vol.csv' #RECODE PATH, MAKE SURE TO KEEP THE _vol
+Organisation_CSV_Path=r'\volunteersys\{p}_org.csv' #RECODE PATH MAKE SURE TO KEEP THE _org 
+Volunteer_CSV_Path=r'\volunteersys\{k}_vol.csv' #RECODE PATH, MAKE SURE TO KEEP THE _vol
 def write_csv(givenpath,adding_target,top_row):
     with open(givenpath, 'a', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=top_row,extrasaction='ignore')
         writer.writerow({'First Name': adding_target.Firstname, 'Last Name': adding_target.LastName, 'Phone Number': adding_target.Phone, 'Address': adding_target.Address, 'Admin_ID': adding_target.Admin_ID, 'Timestamp': adding_target.Timestamp})
 
 
+ctr=0
+
+### | Start of program | ###
 
 def restofproject():
-
     app.destroy()
     ckt.set_appearance_mode("system")
     ckt.set_default_color_theme("blue")
@@ -40,6 +39,8 @@ def restofproject():
     restwin.title("EZ Volunteer System-Access")
     title = ckt.CTkLabel(restwin, text="Enter the Organisation's name that you would like to access.")
     title.pack(padx=10, pady=10)
+
+
     orgname=ckt.CTkEntry(restwin, placeholder_text='Enter Organisation Name')
     orgname.pack(padx=10, pady=10)
     def sendof():            
@@ -76,6 +77,9 @@ def restofproject():
     
     abc=ckt.CTkButton(restwin, text="Submit",command=sendof)
     abc.pack(padx=20, pady=10) 
+    aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+    lbll=ckt.CTkLabel(restwin, text='',image=(aso))
+    lbll.pack(pady=10)
     restwin.mainloop()
     
     
@@ -91,7 +95,7 @@ def setup_organisation():
         ckt.set_appearance_mode("system")
         ckt.set_default_color_theme("blue")
 
-        setupwin = ckt.CTk()
+        setupwin = ckt.CTkToplevel()
         
         setupwin.geometry("720x480")
         setupwin.title("EZ Volunteer System")
@@ -101,6 +105,8 @@ def setup_organisation():
 
         orgname=ckt.CTkEntry(setupwin, placeholder_text='Enter Organisation Name')
         orgname.pack(padx=20, pady=10)
+        
+
 
         def sendoff():
             a=orgname.get()
@@ -113,74 +119,94 @@ def setup_organisation():
                 writer.writeheader()
             try:
                 setupwin.destroy()
+                exit()
             except: pass 
   
         submit=ckt.CTkButton(setupwin, text="Submit",command=sendoff)
         submit.pack(padx=20, pady=10)
+        
+        aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+        lbll=ckt.CTkLabel(setupwin, text='',image=(aso))
+        lbll.pack(pady=10)
+
         setupwin.mainloop()
+        
         
 
 def add_volunteer():
 
-    ckt.set_appearance_mode("system")
-    ckt.set_default_color_theme("blue")
-    volwin = ckt.CTk()
-    volwin.geometry("720x480")
-    volwin.title("EZ Volunteer System-Volunteer Create")
-    labell = ckt.CTkLabel(volwin, text="Please fill in all fields about the volunteer")
-    labell.pack(padx=10, pady=10)
+    if "volwin" in locals():
+        volwin.focus()  
+    else:
+        ckt.set_appearance_mode("system")
+        ckt.set_default_color_theme("blue")
+        
+        volwin = ckt.CTkToplevel()
+        volwin.geometry("720x480")
+        volwin.title("EZ Volunteer System-Volunteer Create")
 
-    FNAME=ckt.CTkEntry(volwin, placeholder_text='First Name')
-    FNAME.pack(padx=20, pady=10)
-    LNAME=ckt.CTkEntry(volwin, placeholder_text='Last Name')
-    LNAME.pack(padx=20, pady=10)
-    Location=ckt.CTkEntry(volwin, placeholder_text='Address (123 Countryside Drive)')
-    Location.pack(padx=20, pady=10)    
-    PH=ckt.CTkEntry(volwin, placeholder_text='Phone Number 123-456-7890')
-    PH.pack(padx=20, pady=10)  
-    Admin=ckt.CTkEntry(volwin, placeholder_text='Admin Name')
-    Admin.pack(padx=20, pady=10)
-    def submit():
-        first=FNAME.get()
-        last=LNAME.get()
-        Address=Location.get()
-        Adder=Admin.get()
-        Phone=PH.get()
+        labell = ckt.CTkLabel(volwin, text="Please fill in all fields about the volunteer")
+        labell.pack(padx=10, pady=10)
 
-        PN_criteria = re.compile(r"^\d{10}$")
-        condition=PN_criteria.match(Phone)
+        FNAME=ckt.CTkEntry(volwin, placeholder_text='First Name')
+        FNAME.pack(padx=20, pady=10)
+        LNAME=ckt.CTkEntry(volwin, placeholder_text='Last Name')
+        LNAME.pack(padx=20, pady=10)
+        Location=ckt.CTkEntry(volwin, placeholder_text='Address (123 Countryside Drive)')
+        Location.pack(padx=20, pady=10)    
+        PH=ckt.CTkEntry(volwin, placeholder_text='Phone Number 123-456-7890')
+        PH.pack(padx=20, pady=10)  
+        Admin=ckt.CTkEntry(volwin, placeholder_text='Admin Name')
+        Admin.pack(padx=20, pady=10)
+        def submit():
+            first=FNAME.get()
+            last=LNAME.get()
+            Address=Location.get()
+            Adder=Admin.get()
+            Phone=PH.get()
+
+            PN_criteria = re.compile(r"^\d{10}$")
+            condition=PN_criteria.match(Phone)
 
 
-        if bool(condition) == True:  
-                TimeStamp=datetime.today().strftime('%Y-%m-%d')    # HH:MIN:SECONDS
-                Hours=0
-                Fullname= f"{first} {last}"  
-                NewVolunteer=Volunteer(Fullname,Address,Adder,TimeStamp,Hours,Phone)
-                df_dstm="Date, Start Time, End Time, Admin"
-                newpath_vol=Volunteer_CSV_Path.format(k=Fullname)
-                access_org=Organisation_CSV_Path.format(p=accessable)
-                newvolfile = open(newpath_vol, "w")
-                newvolfile.write(df_dstm)
-                with open(access_org,'a') as thecsv:  
-                    thecsv.write(str(NewVolunteer))                  
-                labell.configure(volwin,text=f"Volunteer named {first} {last} has been added by {Adder} on {TimeStamp}")
-        else:
-            labell.configure(volwin, text="Incorrect phone number format, please enter it with 10 digits \n Please edit what you wrote and resubmit")
-            
-    newsub=ckt.CTkButton(volwin, text="Submit",command=submit)
-    newsub.pack(padx=20, pady=10)
-    volwin.mainloop()
+            if bool(condition) == True:  
+                    TimeStamp=datetime.today().strftime('%Y-%m-%d')    # HH:MIN:SECONDS
+                    Hours=0
+                    Fullname= f"{first} {last}"  
+                    NewVolunteer=Volunteer(Fullname,Address,Adder,TimeStamp,Hours,Phone)
+                    df_dstm="Date, Start Time, End Time, Admin"
+                    newpath_vol=Volunteer_CSV_Path.format(k=Fullname)
+                    access_org=Organisation_CSV_Path.format(p=accessable)
+                    newvolfile = open(newpath_vol, "w")
+                    newvolfile.write(df_dstm)
+                    with open(access_org,'a') as thecsv:  
+                        thecsv.write(str(NewVolunteer))                  
+                    labell.configure(volwin,text=f"Volunteer named {first} {last} has been added by {Adder} on {TimeStamp}")
+            else: labell.configure(volwin, text="Incorrect phone number format, please enter it with 10 digits \n Please edit what you wrote and resubmit")
+
+
+
+        newsub=ckt.CTkButton(volwin, text="Submit",command=submit)
+        newsub.pack(padx=20, pady=10)
+        
+        aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+        lbll=ckt.CTkLabel(volwin, text='',image=(aso))
+        lbll.pack(pady=10)
+        
+        volwin.mainloop()
+
 
 
 def add_hours(): 
     ckt.set_appearance_mode("system")
     ckt.set_default_color_theme("blue")
-    addhrwin = ckt.CTk()
+    addhrwin = ckt.CTkToplevel()
     
     addhrwin.geometry("720x480")
     addhrwin.title("EZ Volunteer System-Add Hours")
     label=ckt.CTkLabel(addhrwin,text="Use 24 hour time")
     label.pack(padx=10,pady=10)
+
     name = ckt.CTkEntry(addhrwin,placeholder_text="Name?")
     name.pack(padx=10,pady=10)
     Day=datetime.today().strftime('%Y-%m-%d')
@@ -203,6 +229,11 @@ def add_hours():
         label.configure(addhrwin,text=f"Hours have been updated for {nom}")    
     hit=ckt.CTkButton(addhrwin,text='Submit',command=sumbit)
     hit.pack(padx=10,pady=12)
+
+    aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+    lbll=ckt.CTkLabel(addhrwin, text='',image=(aso))
+    lbll.pack(pady=10)
+
     addhrwin.mainloop()
 
     
@@ -213,8 +244,10 @@ def remove_volunteer():
     removepplwin = ckt.CTk()
     removepplwin.geometry("720x480")
     removepplwin.title("EZ Volunteer System - Remove Volunteer")    
-    label=ckt.CTkLabel(removepplwin,text="You are removing a volunteer, fill in the fields")
+
+    label=ckt.CTkLabel(removepplwin,text="WARNING: You are removing a volunteer \nThis change is IRREVERSABLE")
     label.pack(padx=10,pady=10)
+    
     choice=ckt.CTkEntry(removepplwin,placeholder_text="Full name", placeholder_text_color="Red")
     choice.pack(padx=10,pady=10)
     def sumbit():
@@ -232,6 +265,8 @@ def remove_volunteer():
     
     hit=ckt.CTkButton(removepplwin,text='Submit',command=sumbit)
     hit.pack(padx=10,pady=13)
+    
+
     removepplwin.mainloop()
 
 
@@ -239,19 +274,17 @@ def remove_volunteer():
 def volunteer_snapshot():
     ckt.set_appearance_mode("system")
     ckt.set_default_color_theme("blue")
-    snapwin = ckt.CTk()
+    snapwin = ckt.CTkToplevel()
     snapwin.geometry("720x480")
     snapwin.title("EZ Volunteer System-View Hours")
-    snapwin.grid_columnconfigure(1, weight=1)
-    snapwin.grid_rowconfigure(5, weight=1)
 
     newlab=ckt.CTkLabel(snapwin,text="Enter their name", font=("Arial", 18))
-    newlab.grid(row=1, column=1, padx=10,pady=10)
+    newlab.pack(padx=10,pady=10)
     namein=ckt.CTkEntry(snapwin,placeholder_text="Full Name")
-    namein.grid(row=2, column=1, padx=10,pady=10)
-
+    namein.pack(padx=10,pady=10)
+        
     result=ckt.CTkLabel(snapwin,text="",font=("Arial", 20))
-    result.grid(row=5, column=1, padx=10,pady=10)
+    result.pack(padx=10,pady=10)
 
     def wawa(): 
         fullnom=namein.get()
@@ -299,9 +332,15 @@ def volunteer_snapshot():
             result.configure(snapwin,text=f"The amount of hours that {fullnom} has volunteered for is> {final} \nTheir phone number is {numsel}")
 
     sumbit=ckt.CTkButton(snapwin,text="Submit", command=wawa)
-    sumbit.grid(row=3, column=1, padx=10,pady=1)
-    snapwin.mainloop()
+    sumbit.pack(padx=10,pady=10)
 
+    aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+    lbll=ckt.CTkLabel(snapwin, text='',image=(aso))
+    lbll.pack(padx=10,pady=10)
+
+    snapwin.mainloop()
+    
+    
 
     ckt.set_appearance_mode("system")
     ckt.set_default_color_theme("blue")
@@ -310,19 +349,20 @@ def generate_report():
     ckt.set_appearance_mode("system")
     ckt.set_default_color_theme("green")
 
-    repwin = ckt.CTk()
+    repwin = ckt.CTkToplevel()
     repwin.geometry("720x480")
     repwin.title("Generate report")
     labeler=ckt.CTkLabel(repwin,text="This will generate a TXT file containing a report of a volunteer's activities. \n You can print the report if you choose (WINDOWS ONLY). ")
     labeler.pack(padx=10,pady=10)
     namein=ckt.CTkEntry(repwin,placeholder_text="Name")
     namein.pack(padx=10,pady=10)
+    
     adm=ckt.CTkEntry(repwin,placeholder_text="Admin")
     adm.pack(padx=10,pady=10)
     def entred():   
-        mudi=namein.get()
+        jkx=namein.get()
         newad=adm.get()
-        repvolpath=Volunteer_CSV_Path.format(k=mudi)
+        repvolpath=Volunteer_CSV_Path.format(k=jkx)
         try: reader=open(repvolpath,'r')
         except: labeler.configure(repwin,text=f"That volunteer doesn't exist")
 
@@ -353,7 +393,7 @@ def generate_report():
             listhr.append(res)
             
 
-        waa=fr'A:\Abhiram\Learning\CompSci\Python\Projects\volunteersys\{mudi}_report.txt' #RECODE PATH MAKE SURE TO KEEP THE {mudi} 
+        waa=fr'\volunteersys\{jkx}_report.txt' #RECODE PATH MAKE SURE TO KEEP THE {mudi} 
         
         
         datas=[["Date","Start Time","End Time","Hours","Admin"]]
@@ -366,9 +406,9 @@ def generate_report():
         tabels = tabulate(datas, headers="firstrow", tablefmt="fancy_grid")
 
         with open(waa, 'w', encoding="utf-8") as f:
-           f.write(f"Volunteer report on {mudi}, requested by {newad}\n \n")
+           f.write(f"Volunteer report on {jkx}, requested by {newad}\n \n")
            f.write(tabels)         
-           f.write(f"\n\nGenerated by the EZ Volunteer System on {datetime.today().strftime('%Y-%m-%d')}")
+           f.write(f"\n\nGenerated by the volunteersys on {datetime.today().strftime('%Y-%m-%d')}")
         f.close()
             
 
@@ -385,15 +425,21 @@ def generate_report():
         newlab=ckt.CTkLabel(viewin,text=readfile)
         newlab.pack(padx=10,pady=10)
         def printer():
-            import os
             os.startfile(waa, "print")
+            viewin.destroy()
         prbutton=ckt.CTkButton(viewin,text="Print", command=printer)
         prbutton.pack(padx=10,pady=10)
+    
         viewin.mainloop()
+    
+
     
 
     entre=ckt.CTkButton(repwin, text='Submit', command=entred)
     entre.pack(padx=10,pady=10)
+    aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+    lbll=ckt.CTkLabel(repwin, text='',image=(aso))
+    lbll.pack(pady=10)
     repwin.mainloop()
 
 class Volunteer_Session:
@@ -427,7 +473,11 @@ def codebegin():
 
     setup=ckt.CTkButton(app, text="Create New Organisation",command=setup_organisation)
     exist=ckt.CTkButton(app, text="Access Existing Organisation",command=restofproject)
-
+    
+    logo=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+    lbll=ckt.CTkLabel(app, text='',image=(logo))
+    lbll.pack(pady=10)
+    
     setup.pack(padx=10, pady=10)
     exist.pack(padx=20, pady=10)
     app.mainloop()
@@ -436,5 +486,4 @@ codebegin()
 
 
 # Program written by 24k-zilxh on GitHub
-# Python 3.13 
-# Made on Windows
+# Python 3.12.7
