@@ -36,7 +36,7 @@ def restofproject():
     ckt.set_default_color_theme("blue")
     restwin = ckt.CTk()
     restwin.geometry("720x480")
-    restwin.title("EZ Volunteer System-Access")
+    restwin.title("volunteersys - Access")
     title = ckt.CTkLabel(restwin, text="Enter the Organisation's name that you would like to access.")
     title.pack(padx=10, pady=10)
 
@@ -59,7 +59,7 @@ def restofproject():
             ckt.set_default_color_theme("blue")
             choxwin = ckt.CTk()
             choxwin.geometry("720x480")
-            choxwin.title("EZ Volunteer System-Access")
+            choxwin.title("volunteersys - Access")
             w = ckt.CTkLabel(choxwin, text="Select one please")
             w.pack(padx=10, pady=10)
             addvol=ckt.CTkButton(choxwin, text="Add Volunteer", command=add_volunteer)
@@ -98,7 +98,7 @@ def setup_organisation():
         setupwin = ckt.CTkToplevel()
         
         setupwin.geometry("720x480")
-        setupwin.title("EZ Volunteer System")
+        setupwin.title("volunteersys")
 
         title = ckt.CTkLabel(setupwin, text="Enter your organisation's name")
         title.pack(padx=10, pady=10)
@@ -143,7 +143,7 @@ def add_volunteer():
         
         volwin = ckt.CTkToplevel()
         volwin.geometry("720x480")
-        volwin.title("EZ Volunteer System-Volunteer Create")
+        volwin.title("volunteersys - new volunteer")
 
         labell = ckt.CTkLabel(volwin, text="Please fill in all fields about the volunteer")
         labell.pack(padx=10, pady=10)
@@ -203,7 +203,7 @@ def add_hours():
     addhrwin = ckt.CTkToplevel()
     
     addhrwin.geometry("720x480")
-    addhrwin.title("EZ Volunteer System-Add Hours")
+    addhrwin.title("volunteersys - Add Hours")
     label=ckt.CTkLabel(addhrwin,text="Use 24 hour time")
     label.pack(padx=10,pady=10)
 
@@ -243,7 +243,7 @@ def remove_volunteer():
     ckt.set_default_color_theme("blue")
     removepplwin = ckt.CTk()
     removepplwin.geometry("720x480")
-    removepplwin.title("EZ Volunteer System - Remove Volunteer")    
+    removepplwin.title("volunteersys - Remove Volunteer")    
 
     label=ckt.CTkLabel(removepplwin,text="WARNING: You are removing a volunteer \nThis change is IRREVERSABLE")
     label.pack(padx=10,pady=10)
@@ -276,7 +276,7 @@ def volunteer_snapshot():
     ckt.set_default_color_theme("blue")
     snapwin = ckt.CTkToplevel()
     snapwin.geometry("720x480")
-    snapwin.title("EZ Volunteer System-View Hours")
+    snapwin.title("volunteersys - view hours")
 
     newlab=ckt.CTkLabel(snapwin,text="Enter their name", font=("Arial", 18))
     newlab.pack(padx=10,pady=10)
@@ -421,7 +421,7 @@ def generate_report():
 
         viewin = ckt.CTk()
         viewin.geometry("2560x1440")
-        viewin.title("Viewing Report - EZ Volunteer")
+        viewin.title("volunteersys - view report")
         newlab=ckt.CTkLabel(viewin,text=readfile)
         newlab.pack(padx=10,pady=10)
         def printer():
@@ -466,9 +466,9 @@ def codebegin():
     global app
     app = ckt.CTk()
     app.geometry("720x480")
-    app.title("EZ Volunteer System")
+    app.title("volunteersys")
 
-    title = ckt.CTkLabel(app, text="Welcome to the EZ Volunteer System.")
+    title = ckt.CTkLabel(app, text="Welcome to the volunteersys")
     title.pack(padx=10, pady=10)
 
     setup=ckt.CTkButton(app, text="Create New Organisation",command=setup_organisation)
