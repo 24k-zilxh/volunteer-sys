@@ -1,2 +1,2 @@
-# EZ-Volunteer
-# Easily manage volunteers with this handy program!
+# volunteersys
+# Easily manage volunteers with this handy program.
