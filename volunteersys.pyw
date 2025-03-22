@@ -10,6 +10,7 @@ import customtkinter as ckt
 import re
 from tabulate import tabulate 
 from PIL import Image
+import logging
 
 ### | Program-wide constants | ###
 global setup_organisation_PIN
@@ -24,7 +25,7 @@ def write_csv(givenpath,adding_target,top_row):
     with open(givenpath, 'a', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=top_row,extrasaction='ignore')
         writer.writerow({'First Name': adding_target.Firstname, 'Last Name': adding_target.LastName, 'Phone Number': adding_target.Phone, 'Address': adding_target.Address, 'Admin_ID': adding_target.Admin_ID, 'Timestamp': adding_target.Timestamp})
-
+logging.disable(logging.CRITICAL)
 
 ctr=0
 
@@ -64,15 +65,16 @@ def restofproject():
             w.pack(padx=10, pady=10)
             addvol=ckt.CTkButton(choxwin, text="Add Volunteer", command=add_volunteer)
             addhr=ckt.CTkButton(choxwin, text="Add Hours", command=add_hours)
-            remvol=ckt.CTkButton(choxwin,text='Remove Volunteer', command=remove_volunteer)
+            remvol=ckt.CTkButton(choxwin,text='Remove Volunteer', command=remove_volunteer, fg_color="#FF0000")
             snap=ckt.CTkButton(choxwin, text="View Hours", command=volunteer_snapshot)
             repgen=ckt.CTkButton(choxwin, text="Generate Report", command=generate_report)
             addvol.pack(padx=10,pady=10)
             addhr.pack(padx=10,pady=10)
-            remvol.pack(padx=10,pady=10)
             snap.pack(padx=10,pady=10)
             repgen.pack(padx=10,pady=10)
             w.pack(padx=10,pady=10)
+            remvol.pack(padx=10,pady=10)
+
             choxwin.mainloop()
     
     abc=ckt.CTkButton(restwin, text="Submit",command=sendof)
@@ -250,6 +252,10 @@ def remove_volunteer():
     
     choice=ckt.CTkEntry(removepplwin,placeholder_text="Full name", placeholder_text_color="Red")
     choice.pack(padx=10,pady=10)
+    
+    bolol = ckt.CTkLabel(removepplwin,text="-----")
+
+
     def sumbit():
         nom=choice.get()
         del_path_vol=Volunteer_CSV_Path.format(k=nom)
@@ -265,7 +271,7 @@ def remove_volunteer():
     
     hit=ckt.CTkButton(removepplwin,text='Submit',command=sumbit)
     hit.pack(padx=10,pady=13)
-    
+    bolol.pack(padx=10,pady=10)
 
     removepplwin.mainloop()
 
@@ -477,9 +483,9 @@ def codebegin():
     logo=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
     lbll=ckt.CTkLabel(app, text='',image=(logo))
     lbll.pack(pady=10)
-    
+
+    exist.pack(padx=20, pady=10)    
     setup.pack(padx=10, pady=10)
-    exist.pack(padx=20, pady=10)
     app.mainloop()
 
 codebegin()
