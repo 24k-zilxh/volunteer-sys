@@ -19,7 +19,7 @@ all_organisations_list=[]
 global Organisation_CSV_Path
 global Volunteer_CSV_Path
 Organisation_CSV_Path=r'\volunteersys\{p}_org.csv'  
-Volunteer_CSV_Path=r'\volunteersys\{n}{k}_vol.csv' # k is volunteer name, n is phone number 
+Volunteer_CSV_Path=r'\volunteersys\vol_files\{n}{k}_vol.csv' # k is volunteer name, n is phone number 
 def write_csv(givenpath,adding_target,top_row):
     with open(givenpath, 'a', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=top_row,extrasaction='ignore')
@@ -30,7 +30,8 @@ ctr=0
 
 def load_select_frm(): # loading the home frame
     global choose_opts
-    choose_opts = ckt.CTkFrame(master=app, width=720, height=480) 
+    choose_opts = ckt.CTkFrame(master=app, width=720, height=480)
+    global w
     w = ckt.CTkLabel(choose_opts, text="Select one please")
     w.pack(padx=10, pady=10)
     addvol=ckt.CTkButton(choose_opts, text="Add Volunteer", command=add_volunteer)
@@ -38,13 +39,30 @@ def load_select_frm(): # loading the home frame
     remvol=ckt.CTkButton(choose_opts,text='Remove Volunteer', command=remove_volunteer, fg_color="#FF0000")
     snap=ckt.CTkButton(choose_opts, text="View Hours", command=volunteer_snapshot)
     repgen=ckt.CTkButton(choose_opts, text="Generate Report", command=generate_report)
+    comp_csv=ckt.CTkButton(choose_opts,text="Aggregate CSVs",command=compile_csv,fg_color="#FF8C00")
     addvol.pack(padx=10,pady=10)
     addhr.pack(padx=10,pady=10)
     snap.pack(padx=10,pady=10)
     repgen.pack(padx=10,pady=10)
     w.pack(padx=10,pady=10)
+    comp_csv.pack(padx=10,pady=10)
     remvol.pack(padx=10,pady=10)
     choose_opts.pack()
+
+
+def compile_csv():
+    frame_list = []
+    for v_csv in os.listdir(r"A:\volunteersys\vol_files"):
+        pt = os.path.join(r"A:\volunteersys\vol_files",v_csv)
+        frame_list.append(pd.read_csv(pt))
+    if len(frame_list) == 0: w.configure(text="No volunteer files found")
+    else:
+        full=pd.concat(frame_list, ignore_index=True)
+        full_sort = full.sort_values(by="Date")
+        full_sort.to_excel(r"\volunteersys\compiled_list.xlsx")
+
+        os.startfile(r"\volunteersys\compiled_list.xlsx")
+        
 
 ### | Start of program | ###
 
@@ -116,13 +134,16 @@ def setup_organisation():
             with open(Newpath_org, 'w', newline='') as csvfile:
                 writer = csv.DictWriter(csvfile, fieldnames=header_org)
                 writer.writeheader()
-                title.configure(newOrgFrame, text = f"Organization named {a} has been created\nYou may close the app now")
+                title.configure(newOrgFrame, text = f"Organization named {a} has been created")
             
   
         submit=ckt.CTkButton(newOrgFrame, text="Submit",command=sendoff)
         submit.pack(padx=20, pady=10)
         
         aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+        cont_btn = ckt.CTkButton(newOrgFrame, text="Continue", command=restofproject,fg_color="#808080")
+        cont_btn.pack(padx=10,pady=10)
+
         lbll=ckt.CTkLabel(newOrgFrame, text='',image=(aso))
         lbll.pack(pady=10)
         
@@ -229,7 +250,7 @@ def add_hours():
                 newvolfile = open(newpath_vol, "a")
                 newvolfile.write(str(newsession))
                 label.configure(addhrwin,text=f"Hours have been updated for {nom}")   
-            else: label.configure(addhrwin,text=f"That volunteer does not exist\nMaybe check the spelling?")
+            else: label.configure(addhrwin,text=f"That volunteer does not exist\nCheck the spelling or the phone #")
 
     hit=ckt.CTkButton(addhrwin,text='Submit',command=sumbit)
     hit.pack(padx=10,pady=12)
@@ -507,7 +528,7 @@ def codebegin():
     title.pack(padx=10, pady=10)
 
     setupNewOrg=ckt.CTkButton(postLoginFrame, text="Create New Organisation",command=setup_organisation)
-    accessOrg=ckt.CTkButton(postLoginFrame, text="Access Existing Organisation",command=restofproject)
+    accessOrg=ckt.CTkButton(postLoginFrame, text="Access Existing Organisation",command=restofproject, fg_color="#35530A")
 
     accessOrg.pack(padx=20, pady=10)    
     setupNewOrg.pack(padx=10, pady=10)
