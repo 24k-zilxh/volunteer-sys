@@ -10,7 +10,7 @@ import re
 from tabulate import tabulate 
 from PIL import ImageTk,Image
 import logging
-
+import subprocess
 ### | Program-wide constants | ###
 global setup_organisation_PIN
 setup_organisation_PIN=3916
@@ -141,8 +141,6 @@ def setup_organisation():
         submit.pack(padx=20, pady=10)
         
         aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
-        cont_btn = ckt.CTkButton(newOrgFrame, text="Continue", command=restofproject,fg_color="#808080")
-        cont_btn.pack(padx=10,pady=10)
 
         lbll=ckt.CTkLabel(newOrgFrame, text='',image=(aso))
         lbll.pack(pady=10)
@@ -188,7 +186,7 @@ def add_volunteer():
                 Hours=0
                 Fullname= f"{first} {last}"  
                 NewVolunteer=Volunteer(Fullname,Address,Adder,TimeStamp,Hours,Phone)
-                df_dstm="Date, Start Time, End Time, Admin, Volunteer Name"
+                df_dstm="Date, Start Time, End Time, Admin, Name"
                 newpath_vol=Volunteer_CSV_Path.format(k=Fullname,n=Phone)
                 access_org=Organisation_CSV_Path.format(p=accessable)
                 newvolfile = open(newpath_vol, "w")
@@ -281,7 +279,6 @@ def remove_volunteer():
     ph_nmb = ckt.CTkEntry(removepplwin,placeholder_text="Phone number")
     ph_nmb.pack(padx=10,pady=10)
     bolol = ckt.CTkLabel(removepplwin,text="-----")
-
     
 
     def sumbit():
@@ -374,7 +371,7 @@ def volunteer_snapshot():
                 final =timedelta(seconds=ppp)
                 final= final.total_seconds()
                 final=final/ 3600
-                result.configure(snapwin,text=f"{fullnom} with phone number {numsel} has:\n{final} hours")
+                result.configure(snapwin,text=f"{fullnom.capitalize()} with phone number {numsel} has:\n{final} hours")
 
     sumbit=ckt.CTkButton(snapwin,text="Submit", command=wawa)
     sumbit.pack(padx=10,pady=10)
@@ -397,7 +394,7 @@ def volunteer_snapshot():
 def generate_report():
     choose_opts.forget()
     repwin = ckt.CTkFrame(master=app,width=720,height=480)
-    labeler=ckt.CTkLabel(repwin,text="This will generate a TXT file containing a report of a volunteer's activities. \n You can print the report if you choose (WINDOWS ONLY). ")
+    labeler=ckt.CTkLabel(repwin,text="This will generate a TXT file containing a report of a volunteer's activities. \n You can print the report")
     labeler.pack(padx=10,pady=10)
     namein=ckt.CTkEntry(repwin,placeholder_text="Name")
     namein.pack(padx=10,pady=10)
@@ -406,16 +403,16 @@ def generate_report():
     adm=ckt.CTkEntry(repwin,placeholder_text="Admin")
     adm.pack(padx=10,pady=10)
     def entred():   
-        j=numberin.get()
+        aaaj=numberin.get()
         jkx=namein.get()
         jkx=jkx.lower()
         newad=adm.get()
-        repvolpath=Volunteer_CSV_Path.format(k=jkx,n=j)
+        repvolpath=Volunteer_CSV_Path.format(k=jkx,n=aaaj)
 
-        if len(str(j)) != 10: labeler.configure(repwin, text="Enter the phone number again with only 10 digits")
+        if len(str(aaaj)) != 10: labeler.configure(repwin, text="Enter the phone number again with only 10 digits")
         else:
             try: reader=open(repvolpath,'r')
-            except: labeler.configure(repwin,text=f"That volunteer doesn't exist")
+            except: labeler.configure(repwin,text=f"That volunteer doesn't exist\nCheck their phone #")
 
             reportgen=csv.DictReader(reader)
 
@@ -453,7 +450,7 @@ def generate_report():
                 datas.append(apender)
             datas.append(["","","",sum(listhr),""])
             
-            tabels = tabulate(datas, headers="firstrow", tablefmt="grid")
+            tabels = tabulate(datas, headers="firstrow", tablefmt="fancy_grid")
 
             with open(waa, 'w', encoding="utf-8") as f:
                 f.write(f"Volunteer report on {jkx}, requested by {newad}\n \n")
@@ -462,26 +459,40 @@ def generate_report():
                 f.close()
 
             repwin.forget()
-            report_frame = ckt.CTkScrollableFrame(master=app, width=720, height=480)
-            text_box = ckt.CTkTextbox(report_frame, width=400, height=300, wrap="word")
-            text_box.pack(padx=20, pady=20, fill="both", expand=True)
-            text_box.insert("0.0", tabels)
+            x=[]
+            with open(Volunteer_CSV_Path.format(k=jkx,n=aaaj), 'r') as file:
+                reader = csv.reader(file)
+                for row in reader:
+                    x.append(row)
+
+            grid_view = ckt.CTkScrollableFrame(master=app) 
+            grid_view.pack(expand=True, fill="both",padx=20,pady=20,anchor="center")
+            grid_view.grid_columnconfigure(5, weight=1)
+            grid_view.grid_rowconfigure(len(x)+1, weight=1)
+
+            
+            for a in range(len(x)):
+                    for b in range(5):
+                            xp = ckt.CTkLabel(grid_view,text=x[a][b]) 
+                            xp.grid(row=a,column=b)
             def abc():
-                report_frame.pack_forget()
+                grid_view.pack_forget()
                 load_select_frm()
-            backbutton=ckt.CTkButton(report_frame, text="Back", command=abc,fg_color="#808080")
-            backbutton.pack(padx=20,pady=10)  
-                
-            report_frame.pack()
+            def prt():        
+                os.startfile(waa,'print')
 
+            pbtn=ckt.CTkButton(grid_view, text="Print", command=prt, fg_color="#cc6666")
+            pbtn.grid(row=len(x)+1,column=2)  
 
-
+            backbutton=ckt.CTkButton(grid_view, text="Back", command=abc,fg_color="#808080")
+            backbutton.grid(row=len(x)+1,column=4)  
     
     entre=ckt.CTkButton(repwin, text='Submit', command=entred)
     entre.pack(padx=10,pady=10)
     def abc():
         repwin.forget()
         load_select_frm()
+
     backbutton=ckt.CTkButton(repwin, text="Back", command=abc,fg_color="#808080")
     backbutton.pack(padx=20,pady=10)   
     aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
@@ -539,7 +550,6 @@ def codebegin():
     app.mainloop()
 
 codebegin()
-
 
 # Program written by 24k-zilxh on GitHub
 # Python 3.12.7

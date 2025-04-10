@@ -2,15 +2,18 @@
 # This will be run when setting it up, and the end user will typically not need to run it
 # Includes a GUI, just in case
 # if python is upgraded to a later version (3.12.7 -> 3.13.2 for example), you will need to run this again
+# unless you really need to, just stay on 3.12.7 - i did most of the testing on this python version
 
 import subprocess
 import customtkinter as ckt # Note that if customtkinter is broken, the pip command will have to be manually entered in the terminal
 import shutil
 import os
 import logging
-import time
 
-logging.disable(logging.CRITICAL) # Turning off all 
+
+logging.disable(logging.CRITICAL) # Turning off all outputs to cmd
+
+
 
 def fixer():
     subprocess.run(["powershell", "-Command", "python -m pip uninstall pandas -q"], capture_output=False) 
@@ -28,6 +31,7 @@ def fixer():
 def reset():
     shutil.rmtree(r"\volunteersys")
     os.makedirs(r"\volunteersys")
+    os.makedirs(r"\volunteersys\vol_files")
     lbll.configure(root, text="all data has been reset")
 
 def update():
