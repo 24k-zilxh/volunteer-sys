@@ -8,9 +8,8 @@ from datetime import *
 import customtkinter as ckt
 import re
 from tabulate import tabulate 
-from PIL import ImageTk,Image
+from PIL import Image
 import logging
-import subprocess
 ### | Program-wide constants | ###
 global setup_organisation_PIN
 setup_organisation_PIN=3916
@@ -19,7 +18,7 @@ all_organisations_list=[]
 global Organisation_CSV_Path
 global Volunteer_CSV_Path
 Organisation_CSV_Path=r'\volunteersys\{p}_org.csv'  
-Volunteer_CSV_Path=r'\volunteersys\vol_files\{n}{k}_vol.csv' # k is volunteer name, n is phone number 
+Volunteer_CSV_Path=r'\volunteersys\vol_files\{n}-{a}{k}_vol.csv' # k is volunteer name, n is phone number, a is address
 def write_csv(givenpath,adding_target,top_row):
     with open(givenpath, 'a', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=top_row,extrasaction='ignore')
@@ -31,6 +30,8 @@ ctr=0
 def load_select_frm(): # loading the home frame
     global choose_opts
     choose_opts = ckt.CTkFrame(master=app, width=720, height=480)
+    choose_opts.configure(fg_color="#A04000")
+
     global w
     w = ckt.CTkLabel(choose_opts, text="Select one please")
     w.pack(padx=10, pady=10)
@@ -52,17 +53,18 @@ def load_select_frm(): # loading the home frame
 
 def compile_csv():
     frame_list = []
-    for v_csv in os.listdir(r"A:\volunteersys\vol_files"):
-        pt = os.path.join(r"A:\volunteersys\vol_files",v_csv)
+    for v_csv in os.listdir(r"\volunteersys\vol_files"):
+        pt = os.path.join(r"\volunteersys\vol_files",v_csv)
         frame_list.append(pd.read_csv(pt))
     if len(frame_list) == 0: w.configure(text="No volunteer files found")
     else:
         full=pd.concat(frame_list, ignore_index=True)
         full_sort = full.sort_values(by="Date")
-        full_sort.to_excel(r"\volunteersys\compiled_list.xlsx")
+        full_sort.to_excel(r"\volunteersys\compiled_data.xlsx")
 
-        os.startfile(r"\volunteersys\compiled_list.xlsx")
-        
+        os.startfile(r"\volunteersys\compiled_data.xlsx")
+    w.configure(choose_opts,text="compilation complete")
+
 
 ### | Start of program | ###
 
@@ -70,6 +72,8 @@ def restofproject():
     postLoginFrame.pack_forget()
 
     access_org_frame = ckt.CTkFrame(master=app,width=720,height=480)
+    access_org_frame.configure(fg_color="#A04000")
+
     title = ckt.CTkLabel(access_org_frame, text="Enter the Organisation's name that you would like to access.")
     title.pack(padx=10, pady=10)
     access_org_frame.pack() 
@@ -95,7 +99,7 @@ def restofproject():
     
     abc=ckt.CTkButton(access_org_frame, text="Submit",command=sendof)
     abc.pack(padx=20, pady=10) 
-    aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+    aso=ckt.CTkImage(light_image=Image.open(r"\volunteersys\omlogo.jpg"), dark_image=Image.open(r"\volunteersys\omlogo.jpg"),size=(70,70))
     lbll=ckt.CTkLabel(access_org_frame, text='',image=(aso))
     lbll.pack(pady=10)
     access_org_frame.mainloop()
@@ -111,6 +115,8 @@ class Organisation:
 def setup_organisation():
         postLoginFrame.pack_forget()
         newOrgFrame = ckt.CTkFrame(master=app, width=720, height=480)
+        newOrgFrame.configure(fg_color="#A04000")
+
 
         title = ckt.CTkLabel(newOrgFrame, text="Enter your organisation's name")
         title.pack(padx=10, pady=10)
@@ -140,41 +146,43 @@ def setup_organisation():
         submit=ckt.CTkButton(newOrgFrame, text="Submit",command=sendoff)
         submit.pack(padx=20, pady=10)
         
-        aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+        aso=ckt.CTkImage(light_image=Image.open(r"\volunteersys\omlogo.jpg"), dark_image=Image.open(r"\volunteersys\omlogo.jpg"),size=(70,70))
 
         lbll=ckt.CTkLabel(newOrgFrame, text='',image=(aso))
-        lbll.pack(pady=10)
-        
-        
-        
+        lbll.pack(pady=10)    
 
 def add_volunteer():
-
     choose_opts.forget()
     volwin = ckt.CTkFrame(master=app, width=720,height=480)
+    volwin.configure(fg_color="#A04000")
+
 
     labell = ckt.CTkLabel(volwin, text="Please fill in all fields about the volunteer")
     labell.pack(padx=10, pady=10)
 
     FNAME=ckt.CTkEntry(volwin, placeholder_text='First Name')
     FNAME.pack(padx=20, pady=10)
+
     LNAME=ckt.CTkEntry(volwin, placeholder_text='Last Name')
     LNAME.pack(padx=20, pady=10)
-    Location=ckt.CTkEntry(volwin, placeholder_text='Address (123 Countryside Drive)')
-    Location.pack(padx=20, pady=10)    
-    PH=ckt.CTkEntry(volwin, placeholder_text='Phone Number 123-456-7890')
+
+    Location=ckt.CTkEntry(volwin, placeholder_text='Street # and name')
+    Location.pack(padx=20, pady=10)
+
+    PH=ckt.CTkEntry(volwin, placeholder_text='Phone #')
     PH.pack(padx=20, pady=10)  
+
     Admin=ckt.CTkEntry(volwin, placeholder_text='Admin Name')
     Admin.pack(padx=20, pady=10)
-
     volwin.pack()
+
     def submit():
         Phone=PH.get()
         first=FNAME.get()
         first=first.lower()
         last=LNAME.get()
         last=last.lower()
-        Address=Location.get()
+        Address=Location.get() 
         Adder=Admin.get()
 
         PN_criteria = re.compile(r"^\d{10}$")
@@ -185,9 +193,9 @@ def add_volunteer():
                 TimeStamp=datetime.today().strftime('%Y-%m-%d')    # HH:MIN:SECONDS
                 Hours=0
                 Fullname= f"{first} {last}"  
-                NewVolunteer=Volunteer(Fullname,Address,Adder,TimeStamp,Hours,Phone)
-                df_dstm="Date, Start Time, End Time, Admin, Name"
-                newpath_vol=Volunteer_CSV_Path.format(k=Fullname,n=Phone)
+                NewVolunteer=Volunteer(Fullname,Adder,TimeStamp,Hours,Phone,Address) #
+                df_dstm="Date, Start Time, End Time, Admin, Name, Address"
+                newpath_vol=Volunteer_CSV_Path.format(k=Fullname,n=Phone,a=Address)
                 access_org=Organisation_CSV_Path.format(p=accessable)
                 newvolfile = open(newpath_vol, "w")
                 newvolfile.write(df_dstm)
@@ -201,7 +209,7 @@ def add_volunteer():
     newsub=ckt.CTkButton(volwin, text="Submit",command=submit)
     newsub.pack(padx=20, pady=10)
     
-    aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+    aso=ckt.CTkImage(light_image=Image.open(r"\volunteersys\omlogo.jpg"), dark_image=Image.open(r"\volunteersys\omlogo.jpg"),size=(70,70))
     def abc():
         volwin.forget()
         load_select_frm()
@@ -216,7 +224,8 @@ def add_volunteer():
 def add_hours(): 
     choose_opts.forget()
     addhrwin = ckt.CTkFrame(master=app, width=720, height=480)
-    
+    addhrwin.configure(fg_color="#A04000")
+
     label=ckt.CTkLabel(addhrwin,text="Use 24 hour time")
     label.pack(padx=10,pady=10)
 
@@ -231,24 +240,29 @@ def add_hours():
     EndTime.pack(padx=10,pady=10)
     Adm=ckt.CTkEntry(addhrwin,placeholder_text="Admin")
     Adm.pack(padx=10,pady=12)
+    Addr=ckt.CTkEntry(addhrwin,placeholder_text="Address")
+    Addr.pack(padx=10,pady=10)
     def sumbit():
         global nom
         nom=name.get()
         nom=nom.lower()
         phone=phn.get()
+        jjj=Addr.get()
+        jjj=jjj.lower()
+        addrs=Addr.get()
+        addrs = addrs.lower()
         if len(str(phone)) != 10: label.configure(addhrwin, text="Enter the phone number again with only 10 digits")
         else:
             StartTime=BeginTime.get()
             CompletionTime=EndTime.get()    
             Admin=Adm.get()
-            newsession=Volunteer_Session(Day,StartTime,CompletionTime,Admin,nom)
-            newpath_vol=Volunteer_CSV_Path.format(k=nom,n=phone)
-
+            newsession=Volunteer_Session(Day,StartTime,CompletionTime,Admin,nom,addrs)
+            newpath_vol=Volunteer_CSV_Path.format(k=nom,n=phone,a=jjj)
             if os.path.isfile(newpath_vol):
                 newvolfile = open(newpath_vol, "a")
                 newvolfile.write(str(newsession))
                 label.configure(addhrwin,text=f"Hours have been updated for {nom}")   
-            else: label.configure(addhrwin,text=f"That volunteer does not exist\nCheck the spelling or the phone #")
+            else: label.configure(addhrwin,text=f"That volunteer does not exist\nCheck the spelling, phone # or address")
 
     hit=ckt.CTkButton(addhrwin,text='Submit',command=sumbit)
     hit.pack(padx=10,pady=12)
@@ -259,7 +273,7 @@ def add_hours():
     backbutton=ckt.CTkButton(addhrwin, text="Back", command=abc,fg_color="#808080")
     backbutton.pack(padx=20,pady=10)   
 
-    aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+    aso=ckt.CTkImage(light_image=Image.open(r"\volunteersys\omlogo.jpg"), dark_image=Image.open(r"\volunteersys\omlogo.jpg"),size=(70,70))
     lbll=ckt.CTkLabel(addhrwin, text='',image=(aso))
     lbll.pack(pady=10)
 
@@ -270,6 +284,8 @@ def add_hours():
 def remove_volunteer():
     choose_opts.forget()
     removepplwin = ckt.CTkFrame(master=app, width=720, height=480)
+    removepplwin.configure(fg_color="#A04000")
+
 
     label=ckt.CTkLabel(removepplwin,text="WARNING: You are removing a volunteer \nThis change is IRREVERSABLE")
     label.pack(padx=10,pady=10)
@@ -279,15 +295,18 @@ def remove_volunteer():
     ph_nmb = ckt.CTkEntry(removepplwin,placeholder_text="Phone number")
     ph_nmb.pack(padx=10,pady=10)
     bolol = ckt.CTkLabel(removepplwin,text="-----")
-    
+    adr = ckt.CTkEntry(removepplwin,placeholder_text="Address")
+    adr.pack(padx=10,pady=10)
 
     def sumbit():
         nom=choice.get()
+        ad=adr.get()
+        ad=ad.lower()
         nom=nom.lower()
         vp=ph_nmb.get()
         if len(str(vp)) != 10: label.configure(removepplwin, text="Enter the phone number again with only 10 digits")
         else: 
-            del_path_vol=Volunteer_CSV_Path.format(k=nom,n=vp) ####################################--------------------------------------------------
+            del_path_vol=Volunteer_CSV_Path.format(k=nom,n=vp,a=ad)
             x=os.path.isfile(del_path_vol)
             if x==True:
                 os.remove(del_path_vol)
@@ -296,7 +315,7 @@ def remove_volunteer():
                 df.to_csv(access_org, index=False)
                 label.configure(removepplwin,text=f"Volunteer named {nom} has been deleted")
             else:
-                label.configure(removepplwin,text="That volunteer wasn't found, check spelling or maybe they don't exist.")
+                label.configure(removepplwin,text="That volunteer wasn't found\nCheck the name spelling, phone number \nand address")
     
     hit=ckt.CTkButton(removepplwin,text='Submit',command=sumbit)
     hit.pack(padx=10,pady=13)
@@ -314,6 +333,8 @@ def remove_volunteer():
 def volunteer_snapshot():
     choose_opts.forget()
     snapwin = ckt.CTkFrame(master=app, width=720, height=480)
+    snapwin.configure(fg_color="#A04000")
+
 
     newlab=ckt.CTkLabel(snapwin,text="Enter their name", font=("Arial", 18))
     newlab.pack(padx=10,pady=10)
@@ -321,6 +342,8 @@ def volunteer_snapshot():
     namein.pack(padx=10,pady=10)
     numin=ckt.CTkEntry(snapwin,placeholder_text="Phone Number")
     numin.pack(padx=10, pady=10)
+    adrin=ckt.CTkEntry(snapwin,placeholder_text="Address")
+    adrin.pack(padx=10,pady=10)
     result=ckt.CTkLabel(snapwin,text="",font=("Arial", 20))
     result.pack(padx=10,pady=10)
 
@@ -328,12 +351,15 @@ def volunteer_snapshot():
         fullnom=namein.get()
         fullnom=fullnom.lower()
         nmb = numin.get()
+        adr=adrin.get()
+        adr=adr.lower()
         if len(str(nmb)) != 10: result.configure(snapwin, text="Enter the phone number again with only 10 digits")
         else:
             orgsnappath=Organisation_CSV_Path.format(p=accessable)
-            volunteer_snappath=Volunteer_CSV_Path.format(k=fullnom,n=nmb)
+            volunteer_snappath=Volunteer_CSV_Path.format(k=fullnom,n=nmb,a=adr)
+
             try: reader=open(volunteer_snappath,'r')
-            except FileNotFoundError: result.configure(snapwin,text=f"That volunteer doesn't exist")
+            except FileNotFoundError: result.configure(snapwin,text=f"That volunteer doesn't exist\nCheck spelling, phone number & address")
 
             namenumber=open(orgsnappath,'r')
             namereader=csv.DictReader(namenumber)
@@ -345,7 +371,7 @@ def volunteer_snapshot():
                 numlis.append(j["PhoneNumber"])
 
             try: p=listofnames.index(fullnom)
-            except ValueError: result.configure(snapwin,text=f"That volunteer doesn't exist")
+            except ValueError: result.configure(snapwin,text=f"That volunteer doesn't exist\nCheck spelling,phone number & address")
             numsel=numlis[p]
             
             dreader=csv.DictReader(reader)
@@ -382,7 +408,7 @@ def volunteer_snapshot():
     backbutton=ckt.CTkButton(snapwin, text="Back", command=abc,fg_color="#808080")
     backbutton.pack(padx=20,pady=10)   
 
-    aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+    aso=ckt.CTkImage(light_image=Image.open(r"\volunteersys\omlogo.jpg"), dark_image=Image.open(r"\volunteersys\omlogo.jpg"),size=(70,70))
     lbll=ckt.CTkLabel(snapwin, text='',image=(aso))
     lbll.pack(padx=10,pady=10)
 
@@ -394,12 +420,16 @@ def volunteer_snapshot():
 def generate_report():
     choose_opts.forget()
     repwin = ckt.CTkFrame(master=app,width=720,height=480)
+    repwin.configure(fg_color="#A04000")
+
     labeler=ckt.CTkLabel(repwin,text="This will generate a TXT file containing a report of a volunteer's activities. \n You can print the report")
     labeler.pack(padx=10,pady=10)
     namein=ckt.CTkEntry(repwin,placeholder_text="Name")
     namein.pack(padx=10,pady=10)
     numberin = ckt.CTkEntry(repwin,placeholder_text="Phone #")
     numberin.pack(padx=10,pady=10)
+    address_box=ckt.CTkEntry(repwin,placeholder_text="Address")
+    address_box.pack(padx=10,pady=10)
     adm=ckt.CTkEntry(repwin,placeholder_text="Admin")
     adm.pack(padx=10,pady=10)
     def entred():   
@@ -407,12 +437,15 @@ def generate_report():
         jkx=namein.get()
         jkx=jkx.lower()
         newad=adm.get()
-        repvolpath=Volunteer_CSV_Path.format(k=jkx,n=aaaj)
+        klm=address_box.get()
+        klm=klm.lower()
+
+        repvolpath=Volunteer_CSV_Path.format(k=jkx,n=aaaj,a=klm)
 
         if len(str(aaaj)) != 10: labeler.configure(repwin, text="Enter the phone number again with only 10 digits")
         else:
             try: reader=open(repvolpath,'r')
-            except: labeler.configure(repwin,text=f"That volunteer doesn't exist\nCheck their phone #")
+            except: labeler.configure(repwin,text=f"That volunteer doesn't exist\nCheck spelling, phone number and address")
 
             reportgen=csv.DictReader(reader)
 
@@ -455,12 +488,12 @@ def generate_report():
             with open(waa, 'w', encoding="utf-8") as f:
                 f.write(f"Volunteer report on {jkx}, requested by {newad}\n \n")
                 f.write(tabels)         
-                f.write(f"\n\nGenerated by the volunteersys on {datetime.today().strftime('%Y-%m-%d')}")
+                f.write(f"\n\n*Report generated by the volunteersys on {datetime.today().strftime('%Y-%m-%d')}")
                 f.close()
 
             repwin.forget()
             x=[]
-            with open(Volunteer_CSV_Path.format(k=jkx,n=aaaj), 'r') as file:
+            with open(repvolpath, 'r') as file:
                 reader = csv.reader(file)
                 for row in reader:
                     x.append(row)
@@ -473,7 +506,7 @@ def generate_report():
             
             for a in range(len(x)):
                     for b in range(5):
-                            xp = ckt.CTkLabel(grid_view,text=x[a][b]) 
+                            xp = ckt.CTkLabel(grid_view,text=x[a][b],font=("Arial",20)) 
                             xp.grid(row=a,column=b)
             def abc():
                 grid_view.pack_forget()
@@ -495,43 +528,47 @@ def generate_report():
 
     backbutton=ckt.CTkButton(repwin, text="Back", command=abc,fg_color="#808080")
     backbutton.pack(padx=20,pady=10)   
-    aso=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"), dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+    aso=ckt.CTkImage(light_image=Image.open(r"\volunteersys\omlogo.jpg"), dark_image=Image.open(r"\volunteersys\omlogo.jpg"),size=(70,70))
     lbll=ckt.CTkLabel(repwin, text='',image=(aso))
     lbll.pack(pady=10)
     repwin.pack()
 
 class Volunteer_Session:
-    def __init__(self,date,start_time,end_time,admin,name):
+    def __init__(self,date,start_time,end_time,admin,name,address):
         self.date=date
         self.start_time=start_time
         self.end_time=end_time
         self.admin=admin
         self.name = name
+        self.address =address
     def __str__(self):
-        return (f'\n{self.date},{self.start_time},{self.end_time},{self.admin},{self.name}') 
+        return (f'\n{self.date},{self.start_time},{self.end_time},{self.admin},{self.name},{self.address}') 
     
 class Volunteer:
-    def __init__(self,Fullname,Address,Admin_ID,Timestamp,hours,Phone):
+    def __init__(self,Fullname,Admin_ID,Timestamp,hours,Phone,Address,):
         self.Fullname=Fullname
-        self.Address=Address
         self.Admin_ID=Admin_ID
         self.Timestamp=Timestamp
         self.hours=hours
         self.Phone=Phone
+        self.Address=Address
+
+
     def __str__(self):
         return (f'\n{self.Fullname},{self.Phone},{self.Address},{self.Admin_ID},{self.Timestamp}') 
 
 def codebegin():
     global app
-    app = ckt.CTk()
-    app.geometry("720x480")
-    app.title("volunteersys")
+    app = ckt.CTk(fg_color="#A04000")
+    app.geometry("1000x1000")
+    app.title("volunteersys Volunteer Management")
 
     global postLoginFrame
 
     postLoginFrame = ckt.CTkFrame(master=app, width=720, height=480)
+    postLoginFrame.configure(fg_color="#A04000")
    
-    logo=ckt.CTkImage(light_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),dark_image=Image.open(r"Z:\Nikon-1-V3-sample-photo.jpg"),size=(70,70))
+    logo=ckt.CTkImage(light_image=Image.open(r"\volunteersys\omlogo.jpg"),dark_image=Image.open(r"\volunteersys\omlogo.jpg"),size=(70,70))
     imageLabel=ckt.CTkLabel(postLoginFrame, text='',image=(logo))
     imageLabel.pack(pady=10)
 
@@ -546,10 +583,9 @@ def codebegin():
 
     postLoginFrame.pack(padx=20, pady=20)
 
-
     app.mainloop()
 
 codebegin()
 
 # Program written by 24k-zilxh on GitHub
-# Python 3.12.7
+# Python 3.13.2
